@@ -1,17 +1,52 @@
+from flask import Flask, redirect, url_for, request, render_template, jsonify
 import requests
 
-url = "https://westus.api.cognitive.microsoft.com/vision/v1.0/describe"
+#enviroment variables
+from os import environ
+from os.path import join, dirname
+from dotenv import load_dotenv
+dotenv_path = join(dirname(__file__), './.env')
+load_dotenv(dotenv_path)
 
-querystring = {"maxCandidates":"1"}
+KEY2    = environ.get('KEY2')
+URL_API = environ.get('URL_API')
 
-payload = "{\"url\":\"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgcMnNNsvae8dK-yMySErig229IzAV2dzIiGrH-YEfPXmzZaa0DQ\"}"
-headers = {
-    'Content-Type': "application/json",
-    'Ocp-Apim-Subscription-Key': "4703fab05e7c4616915ee6c3aaebfa5d",
-    'Cache-Control': "no-cache",
-    'Postman-Token': "a77b2af8-05c4-160b-a138-5b8d610428fa"
-    }
+app = Flask(__name__)
 
-response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
+@app.route('/', methods = ['POST', 'GET'])
+def inicio():
+    return jsonify(
+            status = 200
+           )
+@app.route('/visual', methods = ['POST', 'GET'])
+def visual():
+    if request.method == 'POST':
+        url = URL_API
 
-print(response.text)
+        querystring = {"maxCandidates":"1"}
+
+        payload = "{\"url\":\"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgcMnNNsvae8dK-yMySErig229IzAV2dzIiGrH-YEfPXmzZaa0DQ\"}"
+        headers = {
+            'Content-Type': "application/json",
+            'Ocp-Apim-Subscription-Key': KEY2,
+            'Cache-Control': "no-cache",
+            'Postman-Token': "a77b2af8-05c4-160b-a138-5b8d610428fa"
+            }
+
+        response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
+
+        print(response.text)
+        return jsonify(
+            status = response.text
+           )
+    else:
+        return jsonify(
+            message = 'send the parameters'
+           )
+
+@app.route('/send_data_db', methods = ['POST', 'GET'])
+def send_data_db():
+    pass
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0',debug = True , port = 5000)
