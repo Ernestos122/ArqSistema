@@ -1,0 +1,84 @@
+
+R version 3.5.0 (2018-04-23) -- "Joy in Playing"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R es un software libre y viene sin GARANTIA ALGUNA.
+Usted puede redistribuirlo bajo ciertas circunstancias.
+Escriba 'license()' o 'licence()' para detalles de distribucion.
+
+R es un proyecto colaborativo con muchos contribuyentes.
+Escriba 'contributors()' para obtener más información y
+'citation()' para saber cómo citar R o paquetes de R en publicaciones.
+
+Escriba 'demo()' para demostraciones, 'help()' para el sistema on-line de ayuda,
+o 'help.start()' para abrir el sistema de ayuda HTML con su navegador.
+Escriba 'q()' para salir de R.
+
+[Previously saved workspace restored]
+
+> #install.packages("glm")
+> library(glm2)
+> #Esto funciona, lo que exige solamente es que el train tenga un class label, llamado Risk en la seccion de entrenamiento.
+> #Hay que entrenar el modelo para luego testearlo. si es que el test se hara registro por registro, o todo un dataset, da lo mismo. 
+> # el output del modelo es la probabilidad de ser valor 1. 
+> # deje parametrizado el valor del threshold, para que se elija:
+> # si se pone threshold 0, el output es el resultado de probabilidad, por registro.
+> # si thres es cualquier valor mayor que 0, se pone valor 1 si es que el valor de probabilidad es mayor a ese threshold, y 0, en caso contrario.
+> # luego el threshold lo decidimos nosotros. lo dejare parametrizado con threshold para la toma de decision
+> RegLog <- function(thres){
++   train<-read.csv2("trainSet.csv")
++   test<-read.csv2("testSet.csv")
++ #fts<-as.formula(Risk~Visual + Text + Bot) #esto es por si solo tenia 3 variables, pero podria tener mas
++ fts<-as.formula(Risk~.)
++ model<-glm2(fts,family=binomial(link='logit'),data=train,control = list(1e-8, 1000, FALSE))
++ risk<-predict(model,newdata=test,type='response')
++ if(thres==0){
++   return(risk)
++   write.table(risk, "result.txt", append = FALSE, sep = " ", dec = "." )
++   
++ }else{
++   risk1<-ifelse(risk>=thres,1,0)
++   write.table(risk1, "result.txt", append = FALSE, sep = " ", dec = "."  )
++   
++   return(risk1)
++ }
++ }
+> RegLog(0.48)
+  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20 
+  0   0   0   1   0   0   0   0   1   0   0   1   0   0   1   0   0   1   0   0 
+ 21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40 
+  1   0   0   1   0   0   0   1   1   0   1   1   0   0   0   0   0   1   0   0 
+ 41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60 
+  1   0   0   1   0   1   0   0   0   0   0   1   0   0   1   1   1   0   1   1 
+ 61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80 
+  0   1   0   0   0   0   0   1   1   0   1   1   1   0   1   0   1   0   0   0 
+ 81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 
+  0   1   1   1   0   1   0   1   0   0   1   1   1   0   1   0   0   1   0   0 
+101 102 103 104 105 106 107 108 109 110 111 112 113 114 115 116 117 118 119 120 
+  0   0   0   1   1   0   0   1   1   1   0   0   0   1   0   0   1   0   1   1 
+121 122 123 124 125 126 127 128 129 130 131 132 133 134 135 136 137 138 139 140 
+  1   1   0   0   0   0   0   0   1   0   1   0   0   0   0   1   0   1   0   0 
+141 142 143 144 145 146 147 148 149 150 151 152 153 154 155 156 157 158 159 160 
+  0   0   1   0   1   0   1   0   1   1   0   0   0   0   1   1   0   1   1   0 
+161 162 163 164 165 166 167 168 169 170 171 172 173 174 175 176 177 178 179 180 
+  1   1   0   0   0   0   1   1   1   0   0   1   0   1   0   0   0   0   0   0 
+181 182 183 184 185 186 187 188 189 190 191 192 193 194 195 196 197 198 199 200 
+  1   0   0   0   0   0   0   0   1   0   0   0   0   1   0   1   1   0   0   0 
+201 202 203 204 205 206 207 208 209 210 211 212 213 214 215 216 217 218 219 220 
+  0   1   0   0   1   0   0   1   0   0   0   0   1   0   1   0   0   1   1   1 
+221 222 223 224 225 226 227 228 229 230 231 232 233 234 235 236 237 238 239 240 
+  0   1   0   1   1   0   1   0   0   1   0   0   0   1   0   0   0   0   0   1 
+241 242 243 244 245 246 247 248 249 250 251 252 253 254 255 256 257 258 259 260 
+  1   0   1   1   0   0   0   1   1   1   0   1   0   0   0   0   0   0   1   1 
+261 262 263 264 265 266 267 268 269 270 271 272 273 274 275 276 277 278 279 280 
+  1   0   1   0   0   0   1   1   1   1   0   1   0   1   0   0   0   0   1   0 
+281 282 283 284 285 286 287 288 289 290 291 292 293 294 295 296 297 298 299 300 
+  0   0   1   0   1   1   1   1   0   0   0   1   0   0   0   1   1   1   1   0 
+301 302 303 304 305 306 307 308 309 310 311 312 313 314 315 
+  1   0   0   0   0   0   1   0   1   0   1   0   1   0   1 
+> # el url deberia ser otro
+> 
+> proc.time()
+   user  system elapsed 
+  0.178   0.043   0.227 

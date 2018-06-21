@@ -1,5 +1,6 @@
 from flask import Flask, redirect, url_for, request, render_template, jsonify
 import requests
+import os
 
 #enviroment variables
 from os import environ
@@ -14,6 +15,7 @@ KEY4    = environ.get('KEY4')
 URL_API2 = environ.get('URL_API2')
 LUIS_KEY3 = environ.get('LUIS_KEY3')
 LUIS_KEY1 = environ.get('LUIS_KEY1')
+REGRESION = environ.get('REGRESION')
 
 
 app = Flask(__name__)
@@ -129,7 +131,25 @@ def luis():
             message = 'send the parameters'
            )
 
-   
+@app.route('/logistic', methods = ['POST', 'GET'])
+def logistic():
+    data = None
+    if request.method == 'POST':
+        data = request.json
+        if 'key' not in request.json.keys():
+            return jsonify({"message" : "json missing 'key'."})
+        key = data['key']
+        if str(key) != 'clave':
+            return jsonify({"message" : "bad key."})
+        output_console = os.popen(REGRESION).readlines()
+        print(output_console)
+        return jsonify(
+            status = 200
+           ) 
+    else:
+        return jsonify(
+            message = 'send the parameters'
+           ) 
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',debug = True , port = 5000)
