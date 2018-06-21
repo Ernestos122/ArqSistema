@@ -33,7 +33,9 @@ def visual():
         image = data['url']
         url = URL_API
 
-        querystring = {"maxCandidates":"1"}
+        querystring = {"maxCandidates":"1",
+                       "language": "en"
+                        }
 
         payload = "{'url':'"+image+"'}"
         headers = {
