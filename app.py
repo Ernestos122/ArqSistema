@@ -12,6 +12,7 @@ KEY2    = environ.get('KEY2')
 URL_API = environ.get('URL_API')
 KEY4    = environ.get('KEY4')
 URL_API2 = environ.get('URL_API2')
+LUIS_KEY3 = environ.get('LUIS_KEY3')
 
 
 app = Flask(__name__)
@@ -76,6 +77,41 @@ def text():
 @app.route('/send_data_db', methods = ['POST', 'GET'])
 def send_data_db():
     pass
+
+
+@app.route('/luis', methods = ['POST', 'GET'])
+def luis():
+    if request.method == 'POST':
+        headers = {
+            # Request headers
+            'Ocp-Apim-Subscription-Key': LUIS_KEY3,
+        }
+
+        params ={
+            # Query parameter
+            'q': 'turn on the left light',
+            'timezoneOffset': '0',
+            'verbose': 'false',
+            'spellCheck': 'false',
+            'staging': 'false',
+        }
+
+        try:
+            r = requests.get('https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/df67dcdb-c37d-46af-88e1-8b97951ca1c2',headers=headers, params=params)
+            print(r.json())
+
+        except Exception as e:
+            print("[Errno {0}] {1}".format(e.errno, e.strerror))
+
+        return jsonify(
+            status = r.text
+           )
+    else:
+        return jsonify(
+            message = 'send the parameters'
+           )
+
+   
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',debug = True , port = 5000)
