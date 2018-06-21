@@ -1,7 +1,8 @@
 from flask import Flask, redirect, url_for, request, render_template, jsonify
 import requests
 import os
-
+import uuid
+import csv
 #enviroment variables
 from os import environ
 from os.path import join, dirname
@@ -135,10 +136,30 @@ def luis():
 def logistic():
     data = None
     if request.method == 'POST':
+        #hay que crear un archivo unico con los parametros de la regresión
+        #la salida debe ser unica
+        #test set debe ser unico
+        #el train set igual
         data = request.json
         if 'key' not in request.json.keys():
             return jsonify({"message" : "json missing 'key'."})
-        key = data['key']
+        if 'dataTestSet_url' not in request.json.keys():
+            return jsonify({"message" : "json missing 'dataTestSet'."})
+        if 'dataTrainSet_url' not in request.json.keys():
+            return jsonify({"message" : "json missing 'dataTrainSet'."})
+        if 'id' not in request.json.keys():
+            return jsonify({"message" : "json missing 'thres'."})
+        key              = data['key']
+        dataTestSet_url  = str(data['dataTestSet_url'])
+        dataTrainSet_url = str(data['dataTrainSet_url'])
+        idus             = str(data['id'])
+        temp             = 'regresion/temp.csv'
+        with open(temp, 'w', newline='') as tmp:
+            fieldnames = ['dataTestSet_url', 'dataTrainSet_url', 'id']
+            writer = csv.DictWriter(tmp, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerow({'dataTestSet_url': dataTestSet_url, 'dataTrainSet_url': dataTrainSet_url, 'id': idus})
+
         if str(key) != 'clave':
             return jsonify({"message" : "bad key."})
         output_console = os.popen(REGRESION).readlines()
