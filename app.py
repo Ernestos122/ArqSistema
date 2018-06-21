@@ -13,6 +13,7 @@ URL_API = environ.get('URL_API')
 KEY4    = environ.get('KEY4')
 URL_API2 = environ.get('URL_API2')
 LUIS_KEY3 = environ.get('LUIS_KEY3')
+LUIS_KEY1 = environ.get('LUIS_KEY1')
 
 
 app = Flask(__name__)
@@ -24,12 +25,17 @@ def inicio():
            )
 @app.route('/visual', methods = ['POST', 'GET'])
 def visual():
+    data = None
     if request.method == 'POST':
+        data = request.json
+        if 'url' not in request.json.keys():
+            return jsonify({"message" : "json missing 'url'."})
+        image = data['url']
         url = URL_API
 
         querystring = {"maxCandidates":"1"}
 
-        payload = "{\"url\":\"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgcMnNNsvae8dK-yMySErig229IzAV2dzIiGrH-YEfPXmzZaa0DQ\"}"
+        payload = "{'url':'"+image+"'}"
         headers = {
             'Content-Type': "application/json",
             'Ocp-Apim-Subscription-Key': KEY2,
@@ -51,9 +57,14 @@ def visual():
     
 @app.route('/text', methods = ['POST', 'GET'])
 def text():
+    data = None
     if request.method == 'POST':
+        data = request.json
+        if 'text' not in request.json.keys():
+            return jsonify({"message" : "json missing 'text'."})
+        text = data['text']
         url = URL_API2
-        payload = "{'documents': [{'id':'1', 'text':'hola'}]}"
+        payload = "{'documents': [{'id':'1', 'text':'"+text+"'}]}"
         
         headers = {
             'Content-Type': "application/json",
@@ -81,7 +92,12 @@ def send_data_db():
 
 @app.route('/luis', methods = ['POST', 'GET'])
 def luis():
+    data = None
     if request.method == 'POST':
+        data = request.json
+        if 'text' not in request.json.keys():
+            return jsonify({"message" : "json missing 'text'."})
+        text = data['text']
         headers = {
             # Request headers
             'Ocp-Apim-Subscription-Key': LUIS_KEY3,
@@ -89,7 +105,7 @@ def luis():
 
         params ={
             # Query parameter
-            'q': 'turn on the left light',
+            'q': text,
             'timezoneOffset': '0',
             'verbose': 'false',
             'spellCheck': 'false',
@@ -97,7 +113,7 @@ def luis():
         }
 
         try:
-            r = requests.get('https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/df67dcdb-c37d-46af-88e1-8b97951ca1c2',headers=headers, params=params)
+            r = requests.get('https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/10060bcf-803d-43a2-8611-a39275db7cea',headers=headers, params=params)
             print(r.json())
 
         except Exception as e:
