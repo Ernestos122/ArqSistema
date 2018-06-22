@@ -47,7 +47,7 @@ def process():
                 img = img.split("\n")
                 payload = "{'url':'"+img[0]+"'}"
                 payload = str(payload).strip("'<>() ").replace('\'', '\"')
-                print(payload)
+                #print(payload)
                 headers = {
                     'Content-Type': "application/json",
                     'Ocp-Apim-Subscription-Key': "4703fab05e7c4616915ee6c3aaebfa5d",
@@ -56,12 +56,32 @@ def process():
                     }
 
                 response = requests.request("POST", url, data=payload, headers=headers)
-                #data_output = json.dumps(ast.literal_eval(response.text))
                 data_output = response.json()
                 image_caption.append(data_output['status']['description']['captions'][0]['text'])
-            print(image_caption)
+            #print(image_caption[0])#esta data va a luis
+        data_image.close()
+        cont = 0
+        image_features = []
+        for i in image_caption:
+            text_image = str(image_caption[cont])
+            text_image = text_image.split("\n")    
+            url2 = "http://0.0.0.0:5000/luis"
+
+            #payload2 = "{\"text\":\"a man riding a wave on a surfboard in the water\"}"
+            payload2 = "{'text':'"+text_image[0]+"'}"
+            payload2 = str(payload2).strip("'<>() ").replace('\'', '\"')
+            headers2 = {
+                'Content-Type': "application/json",
+                'Cache-Control': "no-cache",
+                'Postman-Token': "858dd77b-dd8a-b33c-002a-3927dbc03f08"
+                }
+
+            response2 = requests.request("POST", url2, data=payload2, headers=headers2)
+            data_output = response2.json()
+            image_features.append(data_output['status']['topScoringIntent']['intent'])
+            cont = cont + 1
         return jsonify(
-            data = image_caption
+            data = image_features
            )
     else:
         return jsonify(
@@ -160,14 +180,14 @@ def luis():
         }
 
         try:
-            r = requests.get('https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/10060bcf-803d-43a2-8611-a39275db7cea',headers=headers, params=params)
+            r = requests.get('	https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/221b5e66-c479-4b90-ab6b-03371e5bb456',headers=headers, params=params)
             print(r.json())
 
         except Exception as e:
             print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
         return jsonify(
-            status = r.text
+            status = r.json()
            )
     else:
         return jsonify(
