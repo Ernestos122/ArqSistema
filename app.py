@@ -33,27 +33,30 @@ def visual():
         data = request.json
         if 'url' not in request.json.keys():
             return jsonify({"message" : "json missing 'url'."})
-        image = data['url']
+        images = data['url']
         url = URL_API
+        with open(images,'r') as images:
+            image = images.readlines()
+            for img in image:    
+                querystring = {"maxCandidates":"1",
+                               "language": "en"
+                                }
 
-        querystring = {"maxCandidates":"1",
-                       "language": "en"
-                        }
+                payload = "{'url':'"+img+"'}"
+                headers = {
+                    'Content-Type': "application/json",
+                    'Ocp-Apim-Subscription-Key': KEY2,
+                    'Cache-Control': "no-cache",
+                    'Postman-Token': "a77b2af8-05c4-160b-a138-5b8d610428fa"
+                    }
 
-        payload = "{'url':'"+image+"'}"
-        headers = {
-            'Content-Type': "application/json",
-            'Ocp-Apim-Subscription-Key': KEY2,
-            'Cache-Control': "no-cache",
-            'Postman-Token': "a77b2af8-05c4-160b-a138-5b8d610428fa"
-            }
+                response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
 
-        response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
-
-        print(response.text)
+                print(response.text)
         return jsonify(
-            status = response.text
-           )
+            status = 200
+            )
+        
     else:
         return jsonify(
             message = 'send the parameters'
