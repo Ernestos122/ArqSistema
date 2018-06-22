@@ -3,6 +3,8 @@ import requests
 import os
 import uuid
 import csv
+import ast
+import json
 #enviroment variables
 from os import environ
 from os.path import join, dirname
@@ -26,6 +28,39 @@ def inicio():
     return jsonify(
             status = 200
            )
+
+@app.route('/process', methods = ['POST', 'GET'])
+def process():
+    data = None
+    if request.method == 'POST':
+        with open("image/input/1.txt", "r") as data_image:
+            image = data_image.readlines()
+            for img in image:
+                
+                url = "http://0.0.0.0:5000/visual"
+
+                img = img.split("\n")
+                payload = "{'url':'"+img[0]+"'}"
+                payload = str(payload).strip("'<>() ").replace('\'', '\"')
+                print(payload)
+                headers = {
+                    'Content-Type': "application/json",
+                    'Ocp-Apim-Subscription-Key': "4703fab05e7c4616915ee6c3aaebfa5d",
+                    'Cache-Control': "no-cache",
+                    'Postman-Token': "cf316d57-4414-2a56-eaa1-910b0ea418eb"
+                    }
+
+                response = requests.request("POST", url, data=payload, headers=headers)
+
+                print(response.text)
+        return jsonify(
+            status = 200
+           )
+    else:
+        return jsonify(
+            message = 'send the parameters'
+           )
+
 @app.route('/visual', methods = ['POST', 'GET'])
 def visual():
     data = None
@@ -33,29 +68,26 @@ def visual():
         data = request.json
         if 'url' not in request.json.keys():
             return jsonify({"message" : "json missing 'url'."})
-        images = data['url']
+        image = data['url']
         url = URL_API
-        with open(images,'r') as images:
-            image = images.readlines()
-            for img in image:    
-                querystring = {"maxCandidates":"1",
-                               "language": "en"
-                                }
+        querystring = {"maxCandidates":"1",
+                       "language": "en"
+                        }
 
-                payload = "{'url':'"+img+"'}"
-                headers = {
-                    'Content-Type': "application/json",
-                    'Ocp-Apim-Subscription-Key': KEY2,
-                    'Cache-Control': "no-cache",
-                    'Postman-Token': "a77b2af8-05c4-160b-a138-5b8d610428fa"
-                    }
+        payload = "{'url':'"+image+"'}"
+        headers = {
+            'Content-Type': "application/json",
+            'Ocp-Apim-Subscription-Key': KEY2,
+            'Cache-Control': "no-cache",
+            'Postman-Token': "a77b2af8-05c4-160b-a138-5b8d610428fa"
+            }
 
-                response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
+        response = requests.request("POST", url, data=payload, headers=headers, params=querystring)
 
-                print(response.text)
+        print(response.text)
         return jsonify(
-            status = 200
-            )
+            status = response.text
+           )
         
     else:
         return jsonify(
