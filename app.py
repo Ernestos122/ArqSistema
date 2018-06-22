@@ -35,6 +35,7 @@ def process():
     if request.method == 'POST':
         with open("image/input/1.txt", "r") as data_image:
             image = data_image.readlines()
+            image_tags = []
             for img in image:
                 
                 url = "http://0.0.0.0:5000/visual"
@@ -51,10 +52,12 @@ def process():
                     }
 
                 response = requests.request("POST", url, data=payload, headers=headers)
-
-                print(response.text)
+                #data_output = json.dumps(ast.literal_eval(response.text))
+                data_output = response.json()
+                image_tags.append(data_output['status']['description']['tags'])
+            print(image_tags)
         return jsonify(
-            status = 200
+            data = data_output
            )
     else:
         return jsonify(
@@ -86,7 +89,7 @@ def visual():
 
         print(response.text)
         return jsonify(
-            status = response.text
+            status = response.json()
            )
         
     else:
