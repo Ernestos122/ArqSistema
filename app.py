@@ -21,15 +21,15 @@ LUIS_KEY1 = environ.get('LUIS_KEY1')
 REGRESION = environ.get('REGRESION')
 
 feature_vector = {
-    "Risk":"50",
-    "Safe": "10",
-    "Sport": "80",
-    "danger": "100",
-    "date": "10",
-    "family": "10",
-    "landscape": "10",
-    "party": "50",
-    "work": "20"
+    "Risk": 50,
+    "Safe": 10,
+    "Sport": 80,
+    "danger": 100,
+    "date": 10,
+    "family": 10,
+    "landscape": 10,
+    "party": 50,
+    "work": 20
 }
 
 def contar_veces(elemento, lista):
@@ -39,9 +39,38 @@ def contar_veces(elemento, lista):
            veces += 1
     return veces
 
-def frecuencias(img, text, vector_feature):
-    for im in img:
-        pass
+def vector_usuario(img, text, vector_feature, id_usuario):
+    #Risk
+    Risk       = contar_veces('Risk',img) + contar_veces('Risk', text)
+    Safe       = contar_veces('Safe',img) + contar_veces('safe', text)
+    Sport      = contar_veces('Sport',img) + contar_veces('Sport', text)
+    danger     = contar_veces('danger',img) + contar_veces('danger', text)
+    date       = contar_veces('date',img) + contar_veces('date', text)
+    family     = contar_veces('family',img) + contar_veces('family', text)
+    landscape  = contar_veces('landscape',img) + contar_veces('landscape', text)
+    party      = contar_veces('party',img) + contar_veces('party', text)
+    work       = contar_veces('work',img) + contar_veces('work', text)
+
+    vector = []
+    vector.append(id_usuario)
+    vector.append(Risk * vector_feature['Risk'])
+    vector.append(Safe * vector_feature['Safe'])
+    vector.append(Sport * vector_feature['Sport'])
+    vector.append(danger * vector_feature['danger'])
+    vector.append(date * vector_feature['date'])
+    vector.append(family * vector_feature['family'])
+    vector.append(landscape * vector_feature['landscape'])
+    vector.append(party * vector_feature['party'])
+    vector.append(work * vector_feature['work'])
+    
+    return vector
+
+    # vector = []
+    # vector.append(id_usuario)
+    # for feature in vector_feature:
+    #     vector.append(contar_veces(feature,img) + contar_veces(feature, text))
+    # return
+    
 
 app = Flask(__name__)
 
@@ -120,10 +149,11 @@ def process():
                 data_output = response3.json()
                 data_output_text.append(data_output['status']['topScoringIntent']['intent'])
 
-        print(contar_veces('Risk',data_output_text))
+        vector = vector_usuario(image_features,data_output_text,feature_vector,1)
         return jsonify(
             data_image = image_features,
-            data_text  = data_output_text   
+            data_text  = data_output_text,
+            vector = vector   
            )
     else:
         return jsonify(
