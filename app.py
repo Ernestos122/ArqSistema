@@ -20,6 +20,28 @@ LUIS_KEY3 = environ.get('LUIS_KEY3')
 LUIS_KEY1 = environ.get('LUIS_KEY1')
 REGRESION = environ.get('REGRESION')
 
+feature_vector = {
+    "Risk":"50",
+    "Safe": "10",
+    "Sport": "80",
+    "danger": "100",
+    "date": "10",
+    "family": "10",
+    "landscape": "10",
+    "party": "50",
+    "work": "20"
+}
+
+def contar_veces(elemento, lista):
+    veces = 0
+    for i in lista:
+       if elemento == i:
+           veces += 1
+    return veces
+
+def frecuencias(img, text, vector_feature):
+    for im in img:
+        pass
 
 app = Flask(__name__)
 
@@ -33,10 +55,6 @@ def inicio():
 def process():
     data = None
     if request.method == 'POST':
-        feature_vector = {
-            "mountain":"50",
-            "young": "10",
-        }
         with open("image/input/1.txt", "r") as data_image:
             image = data_image.readlines()
             image_caption = []
@@ -80,8 +98,32 @@ def process():
             data_output = response2.json()
             image_features.append(data_output['status']['topScoringIntent']['intent'])
             cont = cont + 1
+        #########################
+        #analisis de texto
+        data_output_text = []
+        with open("luis/input/1.txt", "r") as data_tex:
+            tex = data_tex.readlines()
+            for data_text in tex:
+                data_text = data_text.split("\n")
+                url3 = "http://0.0.0.0:5000/luis"
+
+                #payload2 = "{\"text\":\"a man riding a wave on a surfboard in the water\"}"
+                payload3 = "{'text':'"+data_text[0]+"'}"
+                payload3 = str(payload3).strip("'<>() ").replace('\'', '\"')
+                headers3 = {
+                    'Content-Type': "application/json",
+                    'Cache-Control': "no-cache",
+                    'Postman-Token': "858dd77b-dd8a-b33c-002a-3927dbc03f08"
+                    }
+
+                response3 = requests.request("POST", url3, data=payload3, headers=headers3)
+                data_output = response3.json()
+                data_output_text.append(data_output['status']['topScoringIntent']['intent'])
+
+        print(contar_veces('Risk',data_output_text))
         return jsonify(
-            data = image_features
+            data_image = image_features,
+            data_text  = data_output_text   
            )
     else:
         return jsonify(
