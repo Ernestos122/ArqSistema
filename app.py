@@ -33,9 +33,13 @@ def inicio():
 def process():
     data = None
     if request.method == 'POST':
+        feature_vector = {
+            "mountain":"50",
+            "young": "10",
+        }
         with open("image/input/1.txt", "r") as data_image:
             image = data_image.readlines()
-            image_tags = []
+            image_caption = []
             for img in image:
                 
                 url = "http://0.0.0.0:5000/visual"
@@ -54,10 +58,10 @@ def process():
                 response = requests.request("POST", url, data=payload, headers=headers)
                 #data_output = json.dumps(ast.literal_eval(response.text))
                 data_output = response.json()
-                image_tags.append(data_output['status']['description']['tags'])
-            print(image_tags)
+                image_caption.append(data_output['status']['description']['captions'][0]['text'])
+            print(image_caption)
         return jsonify(
-            data = data_output
+            data = image_caption
            )
     else:
         return jsonify(
